@@ -81,9 +81,8 @@ bool is_equation_valid(double* a_line, int n, int index) {
 }
 
 void take_inp(int num, double** main_m, double* free_m) {
-    int j = 0;
     for (int i = 0; i < num; i++) {
-        for (j = 0; j < num; j++) {
+        for (int j = 0; j < num; j++) {
             do {
                 printf(BLUE"Enter a[%d][%d]: "RESET, i + 1, j + 1);
             } while (!is_input_valid(&main_m[i][j], " %n%lf%c") || !is_coef_valid(main_m[i][j], MIN_COEF, MAX_COEF));
