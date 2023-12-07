@@ -81,14 +81,16 @@ bool is_equation_valid(double* a_line, int n, int index) {
 }
 
 void take_inp(int num, double** main_m, double* free_m) {
+    int j = 0;
     for (int i = 0; i < num; i++) {
-        do {
-            for (int j = 0; j < num; j++) {
-                do {
-                    printf(BLUE"Enter a[%d][%d]: "RESET, i + 1, j + 1);
-                } while (!is_input_valid(&main_m[i][j], " %n%lf%c") || !is_coef_valid(main_m[i][j], MIN_COEF, MAX_COEF));
-            }
-        } while (!is_equation_valid(main_m[i], num, i));
+        for (j = 0; j < num; j++) {
+            do {
+                printf(BLUE"Enter a[%d][%d]: "RESET, i + 1, j + 1);
+            } while (!is_input_valid(&main_m[i][j], " %n%lf%c") || !is_coef_valid(main_m[i][j], MIN_COEF, MAX_COEF));
+        }
+        if (!is_equation_valid(main_m[i], num, i)) {
+            i--;
+        }
         printf("\n");
     }
 
@@ -101,7 +103,8 @@ void take_inp(int num, double** main_m, double* free_m) {
 }
 
 double convert_eps(int eps) {
-    double epsilon = eps / pow(10, eps);
+    double correction = (eps - 1) / pow(10, eps);
+    double epsilon = (eps / pow(10, eps)) - correction;
     return epsilon;
 }
 
@@ -182,29 +185,29 @@ void check(int num, double** main_matr, double* x_matr, int digits) {
 }
 
 int main() {
-	int n = 0, e = 0;
-	do {
-		prnt_greeting();
-		do {
-			printf(BLUE"Enter the number of equations (2 - %d): "RESET, MAX_NUM);
-		} while (!is_input_valid(&n, " %n%d%c") || !is_restriction_valid(n, 2, MAX_NUM));
-		do {
-			printf(BLUE"Enter the presicion (max: %d): "RESET, MAX_PRECIS);
-		} while (!is_input_valid(&e, " %n%d%c") || !is_restriction_valid(e, 1, MAX_PRECIS));
-		printf("\n");
-		double** matr_a = 0, * matr_b = 0, * x = 0, * prev_x = 0, * delta = 0;
-		allocate_memory(&matr_a, &matr_b, &x, &prev_x, &delta, n);
-		take_inp(n, matr_a, matr_b);
-		if (!is_zero(matr_a, matr_b, n)) {
-			solve_equation(matr_a, matr_b, x, prev_x, delta, n, e);
-			for (int i = 0; i < n; i++) {
-				printf("%sx[%d] = %s%s%.*lf%s\n", BLUE, i + 1, RESET, GREEN, e, x[i], RESET);
-			}
-			printf("\n");
-			check(n, matr_a, x, e);
-		}
-		free_memory(matr_a, matr_b, x, prev_x, n);
-		printf("\n");
-	} while (!is_esc());
-	return 0;
+    int n = 0, e = 0;
+    do {
+        prnt_greeting();
+        do {
+            printf(BLUE"Enter the number of equations (2 - %d): "RESET, MAX_NUM);
+        } while (!is_input_valid(&n, " %n%d%c") || !is_restriction_valid(n, 2, MAX_NUM));
+        do {
+            printf(BLUE"Enter the presicion (max: %d): "RESET, MAX_PRECIS);
+        } while (!is_input_valid(&e, " %n%d%c") || !is_restriction_valid(e, 1, MAX_PRECIS));
+        printf("\n");
+        double** matr_a = 0, * matr_b = 0, * x = 0, * prev_x = 0, * delta = 0;
+        allocate_memory(&matr_a, &matr_b, &x, &prev_x, &delta, n);
+        take_inp(n, matr_a, matr_b);
+        if (!is_zero(matr_a, matr_b, n)) {
+            solve_equation(matr_a, matr_b, x, prev_x, delta, n, e);
+            for (int i = 0; i < n; i++) {
+                printf("%sx[%d] = %s%s%.*lf%s\n", BLUE, i + 1, RESET, GREEN, e, x[i], RESET);
+            }
+            printf("\n");
+            check(n, matr_a, x, e);
+        }
+        free_memory(matr_a, matr_b, x, prev_x, n);
+        printf("\n");
+    } while (!is_esc());
+    return 0;
 }
