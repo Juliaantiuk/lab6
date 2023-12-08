@@ -1,4 +1,3 @@
-//THIS IS FINAL
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <conio.h>
@@ -120,7 +119,7 @@ void allocate_memory(double*** a, double** b, double** x, double** xp, double** 
 }
 
 
-void free_memory(double** a, double* b, double* x, double* xp, int n) {
+void free_memory(double** a, double* b, double* x, double* xp, double* delta, int n) {
     for (int i = 0; i < n; i++) {
         free(a[i]);
     }
@@ -128,6 +127,7 @@ void free_memory(double** a, double* b, double* x, double* xp, int n) {
     free(b);
     free(x);
     free(xp);
+    free(delta);
 }
 
 bool is_zero(double** main_matr, double* free_matr, int n) {
@@ -172,10 +172,10 @@ void solve_equation(double** main_matr, double* free_matrix, double* x, double* 
 void check(int num, double** main_matr, double* x_matr, int digits) {
     double res = 0;
     for (int i = 0; i < num; i++) {
-        printf(BLUE"%lf * %.*lf"RESET, main_matr[i][0], digits, x_matr[0]);
+        printf(BLUE"%.*lf * %.*lf"RESET,digits,  main_matr[i][0], digits, x_matr[0]);
         res += main_matr[i][0] * x_matr[0];
         for (int j = 1; j < num; j++) {
-            printf(BLUE" + %lf * %.*lf"RESET, main_matr[i][j], digits, x_matr[j]);
+            printf(BLUE" + %.*lf * %.*lf"RESET, digits, main_matr[i][j], digits, x_matr[j]);
             res += main_matr[i][j] * x_matr[j];
         }
         printf(GREEN" = %.*lf\n"RESET, digits, res);
@@ -187,16 +187,21 @@ int main() {
     int n = 0, e = 0;
     do {
         prnt_greeting();
+
         do {
             printf(BLUE"Enter the number of equations (2 - %d): "RESET, MAX_NUM);
         } while (!is_input_valid(&n, " %n%d%c") || !is_restriction_valid(n, 2, MAX_NUM));
+
         do {
             printf(BLUE"Enter the presicion (max: %d): "RESET, MAX_PRECIS);
         } while (!is_input_valid(&e, " %n%d%c") || !is_restriction_valid(e, 1, MAX_PRECIS));
+
         printf("\n");
         double** matr_a = 0, * matr_b = 0, * x = 0, * prev_x = 0, * delta = 0;
         allocate_memory(&matr_a, &matr_b, &x, &prev_x, &delta, n);
+
         take_inp(n, matr_a, matr_b);
+
         if (!is_zero(matr_a, matr_b, n)) {
             solve_equation(matr_a, matr_b, x, prev_x, delta, n, e);
             for (int i = 0; i < n; i++) {
@@ -205,7 +210,8 @@ int main() {
             printf("\n");
             check(n, matr_a, x, e);
         }
-        free_memory(matr_a, matr_b, x, prev_x, n);
+
+        free_memory(matr_a, matr_b, x, prev_x, delta, n);
         printf("\n");
     } while (!is_esc());
     return 0;
